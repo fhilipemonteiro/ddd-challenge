@@ -3,7 +3,6 @@ import OrderRepositoryInterface from "../../domain/repository/order-repository.i
 import OrderItemModel from "../db/sequelize/model/order-item.model";
 import OrderModel from "../db/sequelize/model/order.model";
 import OrderItem from "../../domain/entity/order_item";
-import { Op } from "sequelize";
 
 export default class OrderRepository implements OrderRepositoryInterface {
   async create(entity: Order): Promise<void> {
@@ -84,7 +83,7 @@ export default class OrderRepository implements OrderRepositoryInterface {
       throw new Error("Order not found");
     }
 
-    const order = new Order(
+    return new Order(
       orderModel.id,
       orderModel.customer_id,
       orderModel.items.map((item) => {
@@ -97,25 +96,30 @@ export default class OrderRepository implements OrderRepositoryInterface {
         );
       })
     );
-
-    return order;
   }
 
   async findAll(): Promise<Order[]> {
-    let orders: Order[] = [];
+    const orderModels = await OrderModel.findAll({
+      include: [{ model: OrderItemModel }],
+    });
 
-    let orderModels;
+    return orderModels.map((orderModel: OrderModel): Order => {
+      const order = orderModel.toJSON();
 
-    try {
-      orderModels = await OrderModel.findAll({
-        include: [{ model: OrderItemModel }],
-      });
-    } catch (error) {
-      console.log(error);
-    }
+      const orderItems: OrderItem[] = order.items.map(
+        (item: OrderItemModel) => {
+          return new OrderItem(
+            item.id,
+            item.name,
+            item.price,
+            item.product_id,
+            item.quantity
+          );
+        }
+      );
 
-    orderModels.map((orderModel) => {});
+      return new Order(order.id, order.customer_id, orderItems);
+    });
 
-    return orders;
   }
 }

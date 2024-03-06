@@ -23,7 +23,7 @@ describe("Order repository test", () => {
       sync: { force: true },
     });
 
-    await sequelize.addModels([
+    sequelize.addModels([
       CustomerModel,
       OrderModel,
       ProductModel,
@@ -36,7 +36,7 @@ describe("Order repository test", () => {
     await sequelize.close();
   });
 
-  it("should create a new order", async () => {
+  test("should create a new order", async () => {
     const customerRepository = new CustomerRepository();
     const customer = new Customer("123", "Customer 1");
     const address = new Address("Street 1", 1, "Zipcode 1", "City 1");
@@ -82,7 +82,7 @@ describe("Order repository test", () => {
     });
   });
 
-  it("should update a orderItem and create a other orderItem", async () => {
+  test("should update a orderItem and create a other orderItem", async () => {
     const customerRepository = new CustomerRepository();
     const customer = new Customer("123", "Customer 1");
     const address = new Address("Street 1", 1, "Zipcode 1", "City 1");
@@ -220,35 +220,30 @@ describe("Order repository test", () => {
       2
     );
 
+    const orderItem3 = new OrderItem(
+      "3",
+      product.name,
+      product.price,
+      product.id,
+      2
+    );
+
     const order1 = new Order("1000", "123", [orderItem1]);
     const order2 = new Order("1001", "123", [orderItem2]);
+    const order3 = new Order("1002", "123", [orderItem3]);
 
-    const orders = [order1, order2];
+    const orders = [order1, order2, order3];
 
     const orderRepository = new OrderRepository();
 
-    orders.map((order) => {
-      return orderRepository.create(order);
+    for (const order of orders) {
+      await orderRepository.create(order);
+    }
+
+    const orderModel: Order[] = await orderRepository.findAll();
+
+    orderModel.forEach((orderModel, index) => {
+      expect(orderModel).toStrictEqual(orders[index]);
     });
-
-    const ordersModel = await orderRepository.findAll();
-
-    const expectedOrder = ordersModel.map((order) => {
-      return new Order(
-        order.id,
-        order.customerId,
-        order.items.map((item) => {
-          return new OrderItem(
-            item.id,
-            item.name,
-            item.price,
-            item.productId,
-            item.quantity
-          );
-        })
-      );
-    });
-
-    expect(expectedOrder).toEqual(ordersModel);
   });
 });
