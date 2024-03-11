@@ -61,7 +61,7 @@ describe("Domain events tests ", () => {
       price: 100,
     });
 
-    eventDispatcher.notify(productCreatedEvent);
+    eventDispatcher.notify("ProductCreatedEvent", [productCreatedEvent]);
 
     expect(spyEventHandler).toHaveBeenCalled();
   });
