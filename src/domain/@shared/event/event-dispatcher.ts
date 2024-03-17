@@ -9,10 +9,12 @@ export default class EventDispatcher implements EventDispatcherInterface {
     return this.eventHandlers;
   }
 
-  notify(eventName: string, event: EventInterface[]): void {
+  notify(eventName: string, events: EventInterface[]): void {
     if (this.eventHandlers[eventName]) {
       this.eventHandlers[eventName].forEach((eventHandler) => {
-        eventHandler.handle(event[0]);
+        events.forEach((event) => {
+          eventHandler.handle(event);
+        });
       });
     }
   }
