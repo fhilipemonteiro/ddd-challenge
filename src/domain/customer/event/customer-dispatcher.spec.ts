@@ -8,10 +8,15 @@ import SendMessageWhenCustomerIsCreated from "./handler/send-message-when-custom
 describe("Customer events tests", () => {
   test("should print console.log when customer is created", () => {
     const eventDispatcher = new EventDispatcher();
-    const eventHandler = new SendMessageWhenCustomerIsCreated();
-    const spyEventHandler = jest.spyOn(eventHandler, "handle");
 
-    eventDispatcher.register("CustomerCreatedEvent", eventHandler);
+    const eventHandler1 = new SendMessageWhenCustomerIsCreated();
+    const eventHandler2 = new SendMessageWhenCustomerIsCreated();
+
+    const spyEventHandler1 = jest.spyOn(eventHandler1, "handle");
+    const spyEventHandler2 = jest.spyOn(eventHandler2, "handle");
+
+    eventDispatcher.register("EnviaConsoleLog1Handler", eventHandler1);
+    eventDispatcher.register("EnviaConsoleLog2Handler", eventHandler2);
 
     const event1 = new CustomerCreatedEvent(
       "Esse é o primeiro console.log do evento: CustomerCreated"
@@ -20,9 +25,11 @@ describe("Customer events tests", () => {
       "Esse é o segundo console.log do evento: CustomerCreated"
     );
 
-    eventDispatcher.notify("CustomerCreatedEvent", [event1, event2]);
+    eventDispatcher.notify("EnviaConsoleLog1Handler", [event1]);
+    eventDispatcher.notify("EnviaConsoleLog2Handler", [event2]);
 
-    expect(spyEventHandler).toHaveBeenCalledTimes(2);
+    expect(spyEventHandler1).toHaveBeenCalledTimes(1);
+    expect(spyEventHandler2).toHaveBeenCalledTimes(1);
   });
 
   test("should print console.log when customer changed address", () => {
