@@ -2,15 +2,16 @@ import EventDispatcher from "../../@shared/event/event-dispatcher";
 import Customer from "../entity/customer";
 import Address from "../value-object/address";
 import CustomerCreatedEvent from "./customer-created.event";
-import SendMessageWhenAddressChanged from "./handler/send-message-when-address-is-changed.event";
 import SendMessageWhenCustomerIsCreated from "./handler/send-message-when-customer-is-created.event";
+import SendEmailWhenCustomerIsCreated from "./handler/send-email-when-customer-is-created.event";
+import SendMessageWhenAddressChanged from "./handler/send-message-when-address-is-changed.event";
 
 describe("Customer events tests", () => {
   test("should print console.log when customer is created", () => {
     const eventDispatcher = new EventDispatcher();
 
     const eventHandler1 = new SendMessageWhenCustomerIsCreated();
-    const eventHandler2 = new SendMessageWhenCustomerIsCreated();
+    const eventHandler2 = new SendEmailWhenCustomerIsCreated();
 
     const spyEventHandler1 = jest.spyOn(eventHandler1, "handle");
     const spyEventHandler2 = jest.spyOn(eventHandler2, "handle");
